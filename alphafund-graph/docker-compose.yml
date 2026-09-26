@@ -1,0 +1,24 @@
+services:
+  neo4j:
+    image: neo4j:5.18.0  # Always pin a specific version, never use 'latest'
+    container_name: alphafund_graph_db
+    restart: unless-stopped
+    ports:
+      - "7474:7474"  # HTTP Web Interface (The Neo4j Browser)
+      - "7687:7687"  # Bolt Protocol (The Python Driver Connection)
+    environment:
+      # 1. Security Authentication
+      - NEO4J_AUTH=neo4j/AlphaFund2026!
+
+      # 2. APOC Plugin Configurations (Crucial for LLM Integration)
+      - NEO4J_PLUGINS=["apoc"]
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_apoc_import_file_enabled=true
+      - NEO4J_apoc_import_file_use__neo4j__config=true
+
+    volumes:
+      # 3. Data Persistence (Mapping container paths to local hard drive)
+      - ./neo4j_data/data:/data
+      - ./neo4j_data/logs:/logs
+      - ./neo4j_data/import:/var/lib/neo4j/import
+      - ./neo4j_data/plugins:/plugins
